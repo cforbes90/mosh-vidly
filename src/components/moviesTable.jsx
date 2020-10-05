@@ -1,15 +1,23 @@
 import React, { Component } from "react";
 import Like from "./common/like";
-import TableHeader from "./common/tableHeader";
-import TableBody from "./common/tableBody";
+import Table from "./common/table";
+import { Link } from "react-router-dom";
 
 class MoviesTable extends Component {
   //Not making it part of state because it won't change throughout the life cycle of the component.
   columns = [
-    { path: "title", label: "Title" },
+    {
+      path: "title",
+      label: "Title",
+      //We aer using a template literal within the curly braces so we can dynamically insert values into that string. It will be a part of the address bar path.
+      content: (movie) => (
+        <Link to={`/movies/${movie._id}`}> {movie.title} </Link>
+      ),
+    },
     { path: "genre.name", label: "Genre" },
     { path: "numberInStock", label: "Stock" },
     { path: "dailyRentalRate", label: "Rate" },
+    //You use this content keyword to render unique buttons in a semi-automated way. The button below will render the Like component AND pass an onClick function via props
     {
       key: "like",
       content: (pie) => (
@@ -37,14 +45,12 @@ class MoviesTable extends Component {
       sortColumn,
     } = this.props;
     return (
-      <table className="table">
-        <TableHeader
-          columns={this.columns}
-          sortColumn={sortColumn}
-          onSort={onSort}
-        />
-        <TableBody columns={this.columns} data={paginatedMovies} />
-      </table>
+      <Table
+        columns={this.columns}
+        data={paginatedMovies}
+        sortColumn={sortColumn}
+        onSort={onSort}
+      />
     );
   }
 }

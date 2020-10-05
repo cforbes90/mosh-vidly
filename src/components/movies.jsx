@@ -58,9 +58,8 @@ class Movies extends Component {
   handleSort = (sortColumn) => {
     this.setState({ sortColumn });
   };
-  render() {
-    //this works because length is a function available to this object. So it is destructured and then assigned to our variable count. This allows us to forgo having to write this.state.movies  to access this value in state.
-    const { length: dunkin } = this.state.movies;
+
+  getPagedData = () => {
     const {
       pageSize,
       currentPage,
@@ -68,7 +67,7 @@ class Movies extends Component {
       movies: allMovies,
       sortColumn,
     } = this.state;
-    if (dunkin === 0) return <p> There are no movies in the database!</p>;
+
     //filter of movies by genre to be displayed in the paginatedMovies,
     const filtered =
       selectedGenre && selectedGenre._id
@@ -78,6 +77,16 @@ class Movies extends Component {
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
     //paginate is a function created from lo dash implementation and placed in the utils folder
     const paginatedMovies = paginate(sorted, currentPage, pageSize);
+
+    return { totalCount: filtered.length, data: paginatedMovies };
+  };
+  render() {
+    //this works because length is a function available to this object. So it is destructured and then assigned to our variable count. This allows us to forgo having to write this.state.movies  to access this value in state.
+    const { length: dunkin } = this.state.movies;
+    const { pageSize, currentPage, sortColumn } = this.state;
+    if (dunkin === 0) return <p> There are no movies in the database!</p>;
+
+    const { totalCount, data: paginatedMovies } = this.getPagedData();
 
     return (
       <main className="row">
@@ -90,7 +99,7 @@ class Movies extends Component {
         </div>
         <div className="col">
           <h2> Movies Component</h2>
-          <p> Showing {filtered.length} movies in the database. </p>
+          <p> Showing {totalCount} movies in the database. </p>
           <MoviesTable
             paginatedMovies={paginatedMovies}
             sortColumn={sortColumn}
@@ -100,7 +109,7 @@ class Movies extends Component {
           />
 
           <Pagination
-            itemsCount={filtered.length}
+            itemsCount={totalCount}
             pageSize={pageSize}
             onPageChange={this.handlePageChange}
             currentPage={currentPage}
